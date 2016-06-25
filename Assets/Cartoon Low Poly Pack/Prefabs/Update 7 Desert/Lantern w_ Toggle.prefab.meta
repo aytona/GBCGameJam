@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: afad19e0a1199ae4981939fd5195d639
+labels:
+- Building
+- Nature
+- Prop
+- Vegetation
+- Desert
+- Monument
+- Pyramid
+- House
+- Food
+- Foodstand
+NativeFormatImporter:
+  userData: 
