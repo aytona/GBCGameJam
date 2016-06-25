@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameLevelEditor : EditorWindow {
 
+	private Texture modelTexture;
 	private int numberOfModels = 1;
 	private Vector2 Xminmax;
 	private Vector2 Yminmax;
@@ -22,6 +24,9 @@ public class GameLevelEditor : EditorWindow {
 
 		GUILayout.Label("Number of Models", EditorStyles.boldLabel);
 		numberOfModels = (int)GUILayout.HorizontalScrollbar(numberOfModels, 1.0f, 1.0f, 5.0f);
+
+		GUILayout.Label("Model Texture", EditorStyles.boldLabel);
+		modelTexture = EditorGUILayout.ObjectField(modelTexture, typeof(Texture), false) as Texture;
 
 		GUILayout.Label("Model Prefabs", EditorStyles.boldLabel);
 		if (modelsArray.Length != numberOfModels)
@@ -44,6 +49,11 @@ public class GameLevelEditor : EditorWindow {
 				ShowNotification(new GUIContent("Min numbers must be smaller than Max numbers"));
 				return;
 			}
+			if (modelTexture == null)
+			{
+				ShowNotification(new GUIContent("Texture must be filled"));
+				return;
+			}
 			foreach(GameObject i in modelsArray)
 			{
 				if (i == null)
@@ -53,20 +63,40 @@ public class GameLevelEditor : EditorWindow {
 				}
 			}
 
-			GenerateLevel(Xminmax.x, Xminmax.y, Yminmax.x, Yminmax.y, modelsArray);
+			GenerateLevel(Xminmax.x, Xminmax.y, Yminmax.x, Yminmax.y, modelsArray, modelTexture);
 		}
 	}
 
-	private static void GenerateLevel(float xMin, float xMax, float yMin, float yMax, GameObject[] models)
+	private static void GenerateLevel(float xMin, float xMax, float yMin, float yMax, GameObject[] models, Texture modelTexts)
 	{
+		Queue<Vector3> spawnNodes = new Queue<Vector3>();
 		GameObject rootObject = new GameObject();
 		rootObject.name = "Level";
-		//Vector3 currentLocation = new Vector3(xMin, 0, yMin);
+		Vector3 currentLocation = new Vector3(xMin, 0, yMin);
 		float[] modelWidths = new float[models.Length];
 		for (int i = 0; i < models.Length; i++)
 		{
 			modelWidths[i] = 
 				(models[i].GetComponent<MeshFilter>().mesh.bounds.size.x * 2.0f); // Multiply by 2 because its the X-length from the center
+		}
+		for (float nextWidth = 0; currentLocation.x + nextWidth <  xMax;)
+		{
+			int randomIndex = Random.Range(0, models.Length);
+			GameObject obj = new GameObject();
+			
+			// TODO: Probably a way to put this in a loop or something
+			Mesh ogMesh = obj.AddComponent<MeshFilter>().mesh;
+			MeshRenderer ogMeshRenderer = obj.AddComponent<MeshRenderer>();
+			BoxCollider ogBoxCollider = obj.AddComponent<BoxCollider>();
+			ogMesh = models[randomIndex].GetComponent<MeshFilter>().mesh;
+			ogMeshRenderer = models[randomIndex].GetComponent<MeshRenderer>();
+
+			obj.transform.SetParent(rootObject.transform);
+			obj.name = models[randomIndex].name;
+			obj.transform.position = currentLocation;
+			obj.transform.rotation = models[randomIndex].transform.rotation;
+			obj.transform.localScale = models[randomIndex].transform.localScale;
+			obj.renderer.material.mainTexture = modelTexts;
 		}
 	}
 }
