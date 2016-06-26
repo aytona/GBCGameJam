@@ -6,8 +6,8 @@ public class GameLevelEditor : EditorWindow {
 
 	private Texture modelTexture;
 	private int numberOfModels = 1;
-	private Vector2 Xminmax;
-	private Vector2 Yminmax;
+	private Vector2 MinVal;
+	private Vector2 MaxVal;
 	private GameObject[] modelsArray = new GameObject[1];
 
 	[MenuItem("LevelEditor/CityGenerator")]
@@ -18,8 +18,8 @@ public class GameLevelEditor : EditorWindow {
 
 	void OnGUI()
 	{
-		Xminmax = EditorGUILayout.Vector2Field("X min and max", Xminmax);
-		Yminmax = EditorGUILayout.Vector2Field("Y min and max", Yminmax);
+		MinVal = EditorGUILayout.Vector2Field("Min Values", MinVal);
+		MaxVal = EditorGUILayout.Vector2Field("Max Values", MaxVal);
 
 		GUILayout.Label("Number of Models", EditorStyles.boldLabel);
 		numberOfModels = (int)GUILayout.HorizontalScrollbar(numberOfModels, 1.0f, 1.0f, 5.0f);
@@ -38,12 +38,12 @@ public class GameLevelEditor : EditorWindow {
 		}
 		if (GUILayout.Button("Generate"))
 		{
-			if (Xminmax.y == 0 || Yminmax.y == 0)
+			if (MinVal.x == 0 || MinVal.y == 0)
 			{
 				ShowNotification(new GUIContent("Max numbers must be nonzero"));
 				return;
 			}
-			if (Xminmax.x > Xminmax.y || Yminmax.x > Yminmax.y)
+			if (MaxVal.x > MinVal.x || MaxVal.y > MinVal.y)
 			{
 				ShowNotification(new GUIContent("Min numbers must be smaller than Max numbers"));
 				return;
@@ -62,7 +62,7 @@ public class GameLevelEditor : EditorWindow {
 				}
 			}
 
-			GenerateLevel(Xminmax.x, Xminmax.y, Yminmax.x, Yminmax.y, modelsArray, modelTexture);
+			GenerateLevel(MinVal.x, MaxVal.x, MinVal.y, MaxVal.y, modelsArray, modelTexture);
 		}
 	}
 
