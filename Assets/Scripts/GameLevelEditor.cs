@@ -77,26 +77,39 @@ public class GameLevelEditor : EditorWindow {
 		for (int i = 0; i < models.Length; i++)
 		{
 			modelWidths[i] = 
-				(models[i].GetComponent<MeshFilter>().mesh.bounds.size.x * 2.0f); // Multiply by 2 because its the X-length from the center
+				(models[i].GetComponent<MeshFilter>().sharedMesh.bounds.size.x * 2.0f); // Multiply by 2 because its the X-length from the center
 		}
 		for (float nextWidth = 0; currentLocation.x + nextWidth <  xMax;)
 		{
 			int randomIndex = Random.Range(0, models.Length);
-			GameObject obj = new GameObject();
-			
-			// TODO: Probably a way to put this in a loop or something
-			Mesh ogMesh = obj.AddComponent<MeshFilter>().mesh;
-			MeshRenderer ogMeshRenderer = obj.AddComponent<MeshRenderer>();
-			BoxCollider ogBoxCollider = obj.AddComponent<BoxCollider>();
-			ogMesh = models[randomIndex].GetComponent<MeshFilter>().mesh;
-			ogMeshRenderer = models[randomIndex].GetComponent<MeshRenderer>();
-
-			obj.transform.SetParent(rootObject.transform);
-			obj.name = models[randomIndex].name;
-			obj.transform.position = currentLocation;
-			obj.transform.rotation = models[randomIndex].transform.rotation;
-			obj.transform.localScale = models[randomIndex].transform.localScale;
-			obj.renderer.material.mainTexture = modelTexts;
+			int nextIndex = Random.Range(0, models.Length);
+			nextIndex = lastIndexCheck(nextIndex, randomIndex) ? nextIndex : indexBorderCheck(nextIndex, models.Length) ? ++nextIndex : --nextIndex; // I don't even know
+			spawnNodes.Enqueue(new Vector3(currentLocation.x + nextWidth, 0, yMin));
+			currentLocation.x += modelWidths[randomIndex];
+			nextWidth = modelWidths[nextIndex];
 		}
+		foreach(Vector3 i in spawnNodes)
+		{
+			GameObject obj = new GameObject();
+			obj.transform.SetParent(rootObject.transform);
+			obj.transform.position = i;
+			spawnNodes.Dequeue();
+		}
+	}
+
+	private static bool lastIndexCheck(int next, int rand)
+	{
+		if (next != rand)
+			return true;
+		else
+			return false;
+	}
+
+	private static bool indexBorderCheck(int next, int length)
+	{
+		if (next++ > length)
+			return false;
+		else
+			return true;
 	}
 }
