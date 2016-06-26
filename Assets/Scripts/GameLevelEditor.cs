@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
 using System.Collections.Generic;
 
 public class GameLevelEditor : EditorWindow {
@@ -14,7 +13,7 @@ public class GameLevelEditor : EditorWindow {
 	[MenuItem("LevelEditor/CityGenerator")]
 	public static void OpenLevelEditorWindow()
 	{
-		EditorWindow.GetWindow<GameLevelEditor>(true, "City Generator");
+        GetWindow<GameLevelEditor>(true, "City Generator");
 	}
 
 	void OnGUI()
@@ -69,7 +68,7 @@ public class GameLevelEditor : EditorWindow {
 
 	private static void GenerateLevel(float xMin, float xMax, float yMin, float yMax, GameObject[] models, Texture modelTexts)
 	{
-		Queue<Vector3> spawnNodes = new Queue<Vector3>();
+		List<Vector3> spawnNodes = new List<Vector3>();
 		GameObject rootObject = new GameObject();
 		rootObject.name = "Level";
 		Vector3 currentLocation = new Vector3(xMin, 0, yMin);
@@ -81,10 +80,10 @@ public class GameLevelEditor : EditorWindow {
 		}
 		for (float nextWidth = 0; currentLocation.x + nextWidth <  xMax;)
 		{
-			int randomIndex = Random.Range(0, models.Length);
-			int nextIndex = Random.Range(0, models.Length);
+			int randomIndex = Random.Range(0, models.Length - 1);
+			int nextIndex = Random.Range(0, models.Length - 1);
 			nextIndex = lastIndexCheck(nextIndex, randomIndex) ? nextIndex : indexBorderCheck(nextIndex, models.Length) ? ++nextIndex : --nextIndex; // I don't even know
-			spawnNodes.Enqueue(new Vector3(currentLocation.x + nextWidth, 0, yMin));
+			spawnNodes.Add(new Vector3(currentLocation.x + nextWidth, 0, yMin));
 			currentLocation.x += modelWidths[randomIndex];
 			nextWidth = modelWidths[nextIndex];
 		}
@@ -93,7 +92,7 @@ public class GameLevelEditor : EditorWindow {
 			GameObject obj = new GameObject();
 			obj.transform.SetParent(rootObject.transform);
 			obj.transform.position = i;
-			spawnNodes.Dequeue();
+			spawnNodes.Remove(i);
 		}
 	}
 
