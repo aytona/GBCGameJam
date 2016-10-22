@@ -1,4 +1,4 @@
-# GBCGameJam #1
+# GBC Game Jam Heat
 ## Description
 First GBC Game Jam. A 12-hour game jam with a theme of 'Heat'.
 
